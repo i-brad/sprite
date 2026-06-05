@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Sprite — Focus Wellbeing Tracker",
+  "version": "1.0.0",
+  "description": "A gamified digital wellbeing tracker. Block distractions with frantic micro-tasks, tame tab explosions, and watch your focus grid go pitch-black.",
+  "permissions": ["storage", "tabs", "alarms", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "src/background/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/content.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "options_page": "src/options/index.html",
+  "action": {
+    "default_title": "Sprite — open dashboard"
+  },
+  "icons": {
+    "16": "public/icons/icon-16.png",
+    "48": "public/icons/icon-48.png",
+    "128": "public/icons/icon-128.png"
+  }
+}

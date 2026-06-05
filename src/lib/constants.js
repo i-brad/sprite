@@ -34,6 +34,7 @@ export const DEFAULT_SETTINGS = {
   unlockMinutes: 5, // temporary unlock window after solving a puzzle
   puzzleSeconds: 15, // countdown to solve the micro-task
   explosionFuseSeconds: 30, // ignore the warning sprite this long -> screen detonates
+  theme: 'system', // dashboard theme: 'system' | 'light' | 'dark'
 }
 
 // tabLimit === 0 (or falsy) means "unlimited" — the Tab Explosion never fires.

@@ -27,7 +27,7 @@ export default function FocusGrid({ days }) {
           return (
             <div key={day.date} className="flex flex-col items-center gap-2">
               <div
-                className="group relative h-14 w-14 rounded-lg border border-white/5 transition-transform hover:scale-105"
+                className="ln group relative h-14 w-14 rounded-lg border transition-transform hover:scale-105"
                 style={{
                   backgroundColor: LEVEL_COLORS[level],
                   boxShadow: neon
@@ -50,7 +50,7 @@ export default function FocusGrid({ days }) {
 
 function Tooltip({ day, level }) {
   return (
-    <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-ink-800 px-3 py-2 text-xs shadow-xl group-hover:block">
+    <div className="ln-2 pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border bg-ink-800 px-3 py-2 text-xs shadow-xl group-hover:block">
       <div className="font-semibold text-ink-50">{day.date}</div>
       <div className="text-ink-300">{LEVEL_LABELS[level]}</div>
       <div className="mt-1 text-ink-400">
@@ -67,7 +67,7 @@ function Legend() {
       {LEVEL_COLORS.map((c, i) => (
         <span
           key={i}
-          className="h-3.5 w-3.5 rounded-sm border border-white/5"
+          className="ln h-3.5 w-3.5 rounded-sm border"
           style={{
             backgroundColor: c,
             boxShadow:

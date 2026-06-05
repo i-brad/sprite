@@ -18,7 +18,7 @@ export default function SettingsPanel({ settings, onSave, onReset }) {
         <button
           type="button"
           onClick={reset}
-          className="shrink-0 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-ink-300 transition-colors hover:border-neon hover:text-neon"
+          className="ln-2 shrink-0 rounded-lg border px-3 py-1.5 text-xs text-ink-300 transition-colors hover:border-neon hover:text-neon"
         >
           Reset to defaults
         </button>
@@ -86,7 +86,7 @@ function TabLimitField({ value, onChange }) {
           className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wider transition-colors ${
             unlimited
               ? 'border-neon/50 bg-neon/10 text-neon'
-              : 'border-white/10 text-ink-400 hover:text-ink-100'
+              : 'ln-2 text-ink-400 hover:text-ink-100'
           }`}
         >
           ∞ Unlimited
@@ -128,7 +128,7 @@ function DomainList({ title, hint, accent, domains, onChange }) {
         {domains.map((d) => (
           <span
             key={d}
-            className="group flex items-center gap-1.5 rounded-full border border-white/10 bg-ink-800 px-3 py-1 text-xs text-ink-100"
+            className="ln-2 group flex items-center gap-1.5 rounded-full border bg-ink-800 px-3 py-1 text-xs text-ink-100"
           >
             {d}
             <button

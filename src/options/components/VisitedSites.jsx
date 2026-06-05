@@ -73,7 +73,7 @@ export default function VisitedSites({ days, settings }) {
                 return (
                   <React.Fragment key={r.domain}>
                     <tr
-                      className={`border-t border-white/5 hover:bg-white/[0.02] ${
+                      className={`ln hv border-t ${
                         canExpand ? 'cursor-pointer' : ''
                       }`}
                       onClick={canExpand ? () => toggle(r.domain) : undefined}
@@ -158,12 +158,12 @@ function TypeTag({ productive, distracting }) {
     )
   if (productive)
     return (
-      <span className="rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-ink-200">
+      <span className="ln-3 rounded-full border px-2 py-0.5 text-[11px] text-ink-200">
         Productive
       </span>
     )
   return (
-    <span className="rounded-full border border-white/5 px-2 py-0.5 text-[11px] text-ink-500">
+    <span className="ln rounded-full border px-2 py-0.5 text-[11px] text-ink-500">
       Neutral
     </span>
   )

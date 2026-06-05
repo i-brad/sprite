@@ -1,27 +1,32 @@
 /** @type {import('tailwindcss').Config} */
+const ink = (v) => `rgb(var(--ink-${v}) / <alpha-value>)`
 export default {
+  darkMode: 'class',
   content: ['./src/options/**/*.{js,jsx,ts,tsx,html}'],
   theme: {
     extend: {
       colors: {
-        // Institutional monochrome ramp — pitch black to bone white.
+        // Institutional monochrome ramp, driven by CSS variables so the whole
+        // scale flips between dark and light themes (see index.css). Low
+        // numbers are surfaces, high numbers are text — this holds in both
+        // modes because the light theme mirrors the ramp.
         ink: {
-          950: '#050505',
-          900: '#0a0a0b',
-          850: '#101012',
-          800: '#161618',
-          700: '#202023',
-          600: '#2c2c30',
-          500: '#3a3a40',
-          400: '#52525a',
-          300: '#71717a',
-          200: '#a1a1aa',
-          100: '#d4d4d8',
-          50: '#f4f4f5',
+          950: ink(950),
+          900: ink(900),
+          850: ink(850),
+          800: ink(800),
+          700: ink(700),
+          600: ink(600),
+          500: ink(500),
+          400: ink(400),
+          300: ink(300),
+          200: ink(200),
+          100: ink(100),
+          50: ink(50),
         },
-        // The single vibrant neon accent — used sparingly for chaos/peaks.
+        // The single vibrant neon accent — dimmed in light mode for legibility.
         neon: {
-          DEFAULT: '#c6ff00',
+          DEFAULT: 'rgb(var(--neon) / <alpha-value>)',
           dim: '#9bcc00',
           glow: 'rgba(198, 255, 0, 0.35)',
         },

@@ -36,6 +36,30 @@ export default function App() {
     setSettings(next)
   }, [])
 
+  // Apply the chosen theme to <html>, following the system setting live when
+  // theme is 'system'.
+  const theme = settings?.theme || 'system'
+  useEffect(() => {
+    const mql = window.matchMedia('(prefers-color-scheme: dark)')
+    const apply = () => {
+      const dark = theme === 'dark' || (theme === 'system' && mql.matches)
+      const root = document.documentElement
+      root.classList.toggle('dark', dark)
+      root.classList.toggle('light', !dark)
+    }
+    apply()
+    if (theme === 'system') {
+      mql.addEventListener('change', apply)
+      return () => mql.removeEventListener('change', apply)
+    }
+  }, [theme])
+
+  const cycleTheme = useCallback(() => {
+    const order = ['system', 'light', 'dark']
+    const next = order[(order.indexOf(theme) + 1) % order.length]
+    handleSave({ theme: next })
+  }, [theme, handleSave])
+
   if (!days || !settings) return <Loading />
 
   return (
@@ -44,6 +68,8 @@ export default function App() {
         days={days}
         showConfig={showConfig}
         onToggleConfig={() => setShowConfig((v) => !v)}
+        theme={theme}
+        onCycleTheme={cycleTheme}
       />
       <div className="mt-10 space-y-8">
         <FocusGrid days={days} />
@@ -58,12 +84,12 @@ export default function App() {
   )
 }
 
-function Header({ days, showConfig, onToggleConfig }) {
+function Header({ days, showConfig, onToggleConfig, theme, onCycleTheme }) {
   const streak = perfectStreak(days)
   return (
     <header className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-ink-900 shadow-neon">
+        <div className="ln-2 flex h-12 w-12 items-center justify-center rounded-xl border bg-ink-900 shadow-neon">
           <SpriteAvatar size={34} />
         </div>
         <div>
@@ -72,7 +98,7 @@ function Header({ days, showConfig, onToggleConfig }) {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-ink-900/60 px-5 py-3">
+        <div className="ln flex items-center gap-3 rounded-xl border bg-ink-900/60 px-5 py-3">
           <span className="text-3xl font-bold text-neon">{streak}</span>
           <span className="text-xs leading-tight text-ink-400">
             day perfect
@@ -82,6 +108,15 @@ function Header({ days, showConfig, onToggleConfig }) {
         </div>
         <button
           type="button"
+          onClick={onCycleTheme}
+          aria-label={`Theme: ${theme}. Click to change.`}
+          title={`Theme: ${theme}`}
+          className="ln-2 flex h-12 w-12 items-center justify-center rounded-xl border bg-ink-900/60 text-ink-300 transition-colors hover:border-neon hover:text-ink-100"
+        >
+          <ThemeIcon theme={theme} />
+        </button>
+        <button
+          type="button"
           onClick={onToggleConfig}
           aria-label="Toggle configuration"
           aria-pressed={showConfig}
@@ -89,7 +124,7 @@ function Header({ days, showConfig, onToggleConfig }) {
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-colors ${
             showConfig
               ? 'border-neon/50 bg-ink-900 text-neon shadow-neon'
-              : 'border-white/10 bg-ink-900/60 text-ink-300 hover:border-white/20 hover:text-ink-100'
+              : 'ln-2 bg-ink-900/60 text-ink-300 hover:border-neon hover:text-ink-100'
           }`}
         >
           <GearIcon spinning={showConfig} />
@@ -118,6 +153,42 @@ function GearIcon({ spinning }) {
   )
 }
 
+// Sun (light) / moon (dark) / monitor (system) depending on the active choice.
+function ThemeIcon({ theme }) {
+  const common = {
+    viewBox: '0 0 24 24',
+    width: 20,
+    height: 20,
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+  }
+  if (theme === 'light') {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </svg>
+    )
+  }
+  if (theme === 'dark') {
+    return (
+      <svg {...common}>
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+      </svg>
+    )
+  }
+  // system
+  return (
+    <svg {...common}>
+      <rect x="2" y="4" width="20" height="13" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
+  )
+}
+
 // Trailing run of perfect-focus days ending today.
 function perfectStreak(days) {
   let streak = 0
@@ -140,7 +211,7 @@ function Loading() {
 
 function Footer() {
   return (
-    <footer className="mt-12 border-t border-white/5 pt-6 text-center text-xs text-ink-500">
+    <footer className="ln mt-12 border-t pt-6 text-center text-xs text-ink-500">
       Sprite tracks locally on your device. Nothing leaves your browser.
     </footer>
   )

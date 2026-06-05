@@ -202,12 +202,14 @@ async function showBlocker() {
         .catch(() => location.replace('about:blank')) // fallback if close fails
     }, 1300)
   }
-  const succeed = async () => {
+  const succeed = () => {
     if (done) return
     done = true
     stopAll()
-    await chrome.runtime.sendMessage({ type: 'SPRITE_UNLOCK', domain: CURRENT_DOMAIN })
-    wrap.remove()
+    wrap.remove() // tear down the UI first so a slow/failed message can't strand it
+    chrome.runtime
+      .sendMessage({ type: 'SPRITE_UNLOCK', domain: CURRENT_DOMAIN })
+      .catch(() => {})
   }
 
   // Pick a random challenge each time so it can't be autopiloted.
@@ -443,8 +445,11 @@ async function init() {
   chrome.storage.onChanged.addListener(async (changes, area) => {
     if (area !== 'local') return
     if (changes['sprite:settings']) settings = await getSettings()
-    if (changes['sprite:unlocks'] && shadow?.querySelector('.blocker')) {
-      if (await isUnlocked(CURRENT_DOMAIN)) shadow.querySelector('.blocker').remove()
+    if (changes['sprite:unlocks']) {
+      // Capture the node once — it may be torn down during the await below
+      // (e.g. the very unlock we just earned), so don't re-query it.
+      const blocker = shadow?.querySelector('.blocker')
+      if (blocker && (await isUnlocked(CURRENT_DOMAIN))) blocker.remove()
     }
   })
 }

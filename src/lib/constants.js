@@ -32,7 +32,7 @@ export const DEFAULT_SETTINGS = {
   ],
   tabLimit: 15, // > this triggers a Tab Explosion. 0 = unlimited (never explodes)
   unlockMinutes: 5, // temporary unlock window after solving a puzzle
-  puzzleSeconds: 30, // countdown to solve the micro-task
+  puzzleSeconds: 15, // countdown to solve the micro-task
   explosionFuseSeconds: 30, // ignore the warning sprite this long -> screen detonates
 }
 

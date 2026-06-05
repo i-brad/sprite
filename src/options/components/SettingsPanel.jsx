@@ -18,7 +18,7 @@ export default function SettingsPanel({ settings, onSave }) {
         />
         <DomainList
           title="Distracting"
-          hint="Blocked behind a 30s math puzzle."
+          hint="Blocked behind a 15s challenge."
           accent="#c6ff00"
           domains={settings.distractingDomains}
           onChange={(distractingDomains) => onSave({ distractingDomains })}

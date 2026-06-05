@@ -12,7 +12,8 @@ A gamified digital wellbeing Chrome extension (Manifest V3 · React · Tailwind)
   15), every page gets a strict top banner with an _exploded_ monochrome avatar
   that stays until you close enough tabs.
 - **High-friction blocker** — visiting a distracting domain injects a full-screen
-  glassmorphic overlay. Solve a multi-digit math puzzle in 30 seconds to unlock
+  glassmorphic overlay. Solve a randomized challenge (math, type-to-confirm,
+  hold-to-unlock, or reaction) in 15 seconds to unlock
   the site for 5 minutes; miss it or run out the clock → redirected to a blank
   page.
 - **GitHub-style focus grid** — a contribution-graph strip of the rolling 7-day

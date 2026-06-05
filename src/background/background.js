@@ -16,7 +16,7 @@ import {
   getDay,
 } from '../lib/storage.js'
 import { isUnlimited } from '../lib/constants.js'
-import { domainFromUrl, isTrackableUrl, matchesList } from '../lib/domains.js'
+import { domainFromUrl, hostFromUrl, isTrackableUrl, matchesList } from '../lib/domains.js'
 
 const SESSION_KEY = 'sprite:activeSession' // { tabId, domain, kind, startedAt }
 const EXPLOSION_KEY = 'sprite:explosion' // { exploded, count, limit }  (in local)
@@ -106,15 +106,18 @@ async function setLastDomains(map) {
   await chrome.storage.session.set({ [LAST_DOMAIN_KEY]: map })
 }
 
-// Count a "tab opening" the first time a tab lands on a given domain (i.e. a
-// navigation to a *new* domain), not on every in-site click.
+// Count a "tab opening" the first time a tab lands on a given host (i.e. a
+// navigation to a *new* host), not on every in-site path click. Deduping by
+// host (not registrable domain) means switching subdomains — mail.google.com
+// to docs.google.com — registers, so sub-domain detail stays accurate.
 async function countOpen(tabId, url) {
   if (!isTrackableUrl(url)) return
   const domain = domainFromUrl(url)
   if (!domain) return
+  const host = hostFromUrl(url) || domain
   const last = await getLastDomains()
-  if (last[tabId] === domain) return // same domain as before — not a new open
-  last[tabId] = domain
+  if (last[tabId] === host) return // same host as before — not a new open
+  last[tabId] = host
   await setLastDomains(last)
 
   const settings = await getSettings()
@@ -122,6 +125,8 @@ async function countOpen(tabId, url) {
   await updateDay((day) => {
     day.tabOpens += 1
     day.opensByDomain[domain] = (day.opensByDomain[domain] || 0) + 1
+    if (!day.opensByHost) day.opensByHost = {} // migrate older records
+    day.opensByHost[host] = (day.opensByHost[host] || 0) + 1
     if (isDistracting) day.distractingVisits += 1
     return day
   })

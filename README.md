@@ -1,7 +1,6 @@
 # Sprite — Focus Wellbeing Tracker
 
 A gamified digital wellbeing Chrome extension (Manifest V3 · React · Tailwind).
-Institutional monochrome aesthetic with a single vibrant neon accent (`#c6ff00`).
 
 ## What it does
 
@@ -39,16 +38,16 @@ npm run build    # outputs dist/
 
 ## Architecture
 
-| File | Role |
-| --- | --- |
-| [manifest.json](manifest.json) | MV3 manifest (storage, tabs, alarms, scripting) |
-| [src/lib/constants.js](src/lib/constants.js) | Storage keys, defaults, day-record shape |
-| [src/lib/storage.js](src/lib/storage.js) | Promise wrappers over `chrome.storage`, 7-day pruning, unlock windows |
-| [src/lib/domains.js](src/lib/domains.js) | URL normalization + blocklist matching |
-| [src/lib/score.js](src/lib/score.js) | Chaos-level scoring + color ramp |
-| [src/background/background.js](src/background/background.js) | Service worker: time tracking, counters, tab-explosion broadcast |
-| [src/content/content.js](src/content/content.js) | Shadow-DOM overlays: blocker, math puzzle, explosion banner |
-| [src/options/](src/options/) | React + Tailwind dashboard (FocusGrid, DataCards, SettingsPanel) |
+| File                                                         | Role                                                                  |
+| ------------------------------------------------------------ | --------------------------------------------------------------------- |
+| [manifest.json](manifest.json)                               | MV3 manifest (storage, tabs, alarms, scripting)                       |
+| [src/lib/constants.js](src/lib/constants.js)                 | Storage keys, defaults, day-record shape                              |
+| [src/lib/storage.js](src/lib/storage.js)                     | Promise wrappers over `chrome.storage`, 7-day pruning, unlock windows |
+| [src/lib/domains.js](src/lib/domains.js)                     | URL normalization + blocklist matching                                |
+| [src/lib/score.js](src/lib/score.js)                         | Chaos-level scoring + color ramp                                      |
+| [src/background/background.js](src/background/background.js) | Service worker: time tracking, counters, tab-explosion broadcast      |
+| [src/content/content.js](src/content/content.js)             | Shadow-DOM overlays: blocker, math puzzle, explosion banner           |
+| [src/options/](src/options/)                                 | React + Tailwind dashboard (FocusGrid, DataCards, SettingsPanel)      |
 
 Icons are generated, dependency-free, via
 [scripts/generate-icons.mjs](scripts/generate-icons.mjs).

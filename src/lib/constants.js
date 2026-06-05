@@ -46,7 +46,8 @@ export const emptyDay = (date) => ({
   distractSeconds: 0,
   neutralSeconds: 0,
   tabOpens: 0,
-  opensByDomain: {}, // domain -> count of new visits today
+  opensByDomain: {}, // registrable domain -> count of new visits today
+  opensByHost: {}, // full host incl. subdomain (mail.google.com) -> count
   distractingVisits: 0, // count of blocked-site visits today
   maxOpenTabs: 0,
   explosions: 0, // number of times Tab Explosion fired today

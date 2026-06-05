@@ -1,5 +1,5 @@
 import React from 'react'
-import { matchesList } from '../../lib/domains.js'
+import { matchesList, normalizeDomain } from '../../lib/domains.js'
 import SpriteAvatar from './SpriteAvatar.jsx'
 
 const TIME_COLORS = {
@@ -32,6 +32,21 @@ export function aggregate(days, settings) {
     }))
     .sort((a, b) => b.opens - a.opens)
 
+  // Merge per-host (sub-domain) opens and group them under their registrable
+  // domain so the dashboard can break each domain down by subdomain.
+  const hostsByDomain = {}
+  for (const d of days) {
+    for (const [host, n] of Object.entries(d.opensByHost || {})) {
+      const reg = normalizeDomain(host) || host
+      ;(hostsByDomain[reg] ||= {})[host] = (hostsByDomain[reg]?.[host] || 0) + n
+    }
+  }
+  for (const reg of Object.keys(hostsByDomain)) {
+    hostsByDomain[reg] = Object.entries(hostsByDomain[reg])
+      .map(([host, opens]) => ({ host, opens }))
+      .sort((a, b) => b.opens - a.opens)
+  }
+
   const topHabits = ranked.filter((r) => r.distracting).slice(0, 5)
   const perfectDays = days.filter(
     (d) => d.distractingVisits === 0 && d.explosions === 0
@@ -47,6 +62,7 @@ export function aggregate(days, settings) {
     perfectDays,
     ranked,
     topHabits,
+    hostsByDomain,
   }
 }
 

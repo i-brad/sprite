@@ -54,6 +54,18 @@ export function normalizeDomain(hostname) {
   return last2
 }
 
+// Full host including subdomain (only leading "www." stripped) — used to
+// record sub-domain-level detail alongside the registrable domain.
+// "https://mail.google.com/x" -> "mail.google.com"
+export function hostFromUrl(url) {
+  try {
+    const { hostname } = new URL(url)
+    return hostname.toLowerCase().replace(/^www\./, '').replace(/\.$/, '')
+  } catch {
+    return null
+  }
+}
+
 // Is this a real, trackable web page (not chrome://, about:, extension pages)?
 export function isTrackableUrl(url) {
   if (!url) return false

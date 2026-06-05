@@ -2,11 +2,27 @@ import React, { useState } from 'react'
 
 // Editable lists of productive / distracting domains plus the core knobs.
 // Writes straight back through saveSettings (the background reads these live).
-export default function SettingsPanel({ settings, onSave }) {
+export default function SettingsPanel({ settings, onSave, onReset }) {
+  const reset = () => {
+    if (window.confirm('Reset all domains and limits to the Sprite defaults?')) {
+      onReset?.()
+    }
+  }
   return (
     <section className="panel p-6">
-      <div className="kicker">Configuration</div>
-      <h2 className="mt-1 text-lg font-semibold text-ink-50">Domains &amp; limits</h2>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="kicker">Configuration</div>
+          <h2 className="mt-1 text-lg font-semibold text-ink-50">Domains &amp; limits</h2>
+        </div>
+        <button
+          type="button"
+          onClick={reset}
+          className="shrink-0 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-ink-300 transition-colors hover:border-neon hover:text-neon"
+        >
+          Reset to defaults
+        </button>
+      </div>
 
       <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <DomainList

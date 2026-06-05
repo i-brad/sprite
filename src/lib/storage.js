@@ -36,6 +36,13 @@ export async function saveSettings(patch) {
   return next
 }
 
+// Wipe all customizations back to the shipped defaults.
+export async function resetSettings() {
+  const next = { ...DEFAULT_SETTINGS }
+  await set(KEYS.SETTINGS, next)
+  return next
+}
+
 /* ------------------------------ days -------------------------------- */
 
 export async function getDays() {

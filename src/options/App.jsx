@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { getRecentDays, getSettings, saveSettings, onChanged } from '../lib/storage.js'
+import { getRecentDays, getSettings, saveSettings, resetSettings, onChanged } from '../lib/storage.js'
 import { HISTORY_DAYS } from '../lib/constants.js'
 import FocusGrid from './components/FocusGrid.jsx'
 import DataCards from './components/DataCards.jsx'
@@ -31,6 +31,11 @@ export default function App() {
     setSettings(next)
   }, [])
 
+  const handleReset = useCallback(async () => {
+    const next = await resetSettings()
+    setSettings(next)
+  }, [])
+
   if (!days || !settings) return <Loading />
 
   return (
@@ -44,7 +49,9 @@ export default function App() {
         <FocusGrid days={days} />
         <DataCards days={days} settings={settings} />
         <VisitedSites days={days} settings={settings} />
-        {showConfig && <SettingsPanel settings={settings} onSave={handleSave} />}
+        {showConfig && (
+          <SettingsPanel settings={settings} onSave={handleSave} onReset={handleReset} />
+        )}
       </div>
       <Footer />
     </div>

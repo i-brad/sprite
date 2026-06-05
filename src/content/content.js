@@ -372,6 +372,7 @@ function playDoom(subtitle = 'Too many tabs. You let it blow.') {
 // files, so nothing to package or expose as a web-accessible resource.
 function playBoomSound() {
   try {
+    if (settings && settings.sound === false) return // muted in settings
     const Ctx = window.AudioContext || window.webkitAudioContext
     if (!Ctx) return
     const ctx = new Ctx()

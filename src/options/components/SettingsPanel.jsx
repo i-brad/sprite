@@ -65,7 +65,44 @@ export default function SettingsPanel({ settings, onSave, onReset }) {
           onChange={(explosionFuseSeconds) => onSave({ explosionFuseSeconds })}
         />
       </div>
+
+      <div className="mt-6">
+        <ToggleField
+          label="Explosion sound"
+          hint="Play a sound when the screen detonates."
+          checked={settings.sound !== false}
+          onChange={(sound) => onSave({ sound })}
+        />
+      </div>
     </section>
+  )
+}
+
+// A labelled on/off switch.
+function ToggleField({ label, hint, checked, onChange }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <div className="text-sm text-ink-100">{label}</div>
+        {hint && <div className="text-[11px] text-ink-500">{hint}</div>}
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        onClick={() => onChange(!checked)}
+        className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${
+          checked ? 'border-neon/60 bg-neon/30' : 'ln-2 bg-ink-800'
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${
+            checked ? 'left-[22px] bg-neon' : 'left-0.5 bg-ink-400'
+          }`}
+        />
+      </button>
+    </div>
   )
 }
 

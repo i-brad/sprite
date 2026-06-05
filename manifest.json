@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "Sprite — Focus Wellbeing Tracker",
   "version": "1.0.0",
-  "description": "A gamified digital wellbeing tracker. Block distractions with frantic micro-tasks, tame tab explosions, and watch your focus grid go pitch-black.",
+  "description": "Gamified focus tracker: block distractions with quick challenges, tame tab overload, watch your focus grid go pitch-black.",
+  "homepage_url": "https://github.com/i-brad/sprite",
   "permissions": ["storage", "tabs", "alarms", "scripting"],
   "host_permissions": ["<all_urls>"],
   "background": {

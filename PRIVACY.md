@@ -60,4 +60,4 @@ If this policy changes, the "Last updated" date above will change accordingly.
 ## Contact
 
 Questions? Open an issue at https://github.com/i-brad/sprite or email
-[your-email@example.com].
+[braimahaboy@gmail.com].

@@ -75,11 +75,42 @@ export default function App() {
         <FocusGrid days={days} />
         <DataCards days={days} settings={settings} />
         <VisitedSites days={days} settings={settings} />
-        {showConfig && (
-          <SettingsPanel settings={settings} onSave={handleSave} onReset={handleReset} />
-        )}
       </div>
       <Footer />
+
+      {showConfig && (
+        <ConfigModal onClose={() => setShowConfig(false)}>
+          <SettingsPanel
+            settings={settings}
+            onSave={handleSave}
+            onReset={handleReset}
+            onClose={() => setShowConfig(false)}
+          />
+        </ConfigModal>
+      )}
+    </div>
+  )
+}
+
+// Centered, scroll-independent overlay so settings always open in view.
+function ConfigModal({ onClose, children }) {
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm sm:p-8"
+      onClick={onClose}
+    >
+      <div
+        className="my-auto w-full max-w-3xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
     </div>
   )
 }

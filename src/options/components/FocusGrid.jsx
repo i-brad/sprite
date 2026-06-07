@@ -3,10 +3,13 @@ import { chaosLevel, LEVEL_COLORS, LEVEL_LABELS } from '../../lib/score.js'
 
 const WEEKDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-// A GitHub-contribution-style strip of the rolling history. Each day is a
-// rounded cell coloured by its chaos level — pitch-black for perfect focus,
-// neon for total chaos.
+// A GitHub-contribution-style grid: weekdays down the rows, weeks across the
+// columns. Each day is coloured by its chaos level — pitch-black for perfect
+// focus, neon for total chaos. Scales to any history length.
 export default function FocusGrid({ days }) {
+  // days arrive oldest -> newest; offset the first cell to its weekday row.
+  const firstDow = new Date(days[0].date + 'T00:00:00').getDay()
+
   return (
     <section className="panel p-6">
       <div className="flex items-end justify-between">
@@ -19,43 +22,52 @@ export default function FocusGrid({ days }) {
         <Legend />
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
-        {days.map((day) => {
-          const level = chaosLevel(day)
-          const date = new Date(day.date + 'T00:00:00')
-          const neon = level === 4
-          return (
-            <div key={day.date} className="flex flex-col items-center gap-2">
+      <div className="mt-6 flex gap-2">
+        {/* weekday labels (Mon / Wed / Fri, like GitHub) */}
+        <div className="grid grid-rows-[repeat(7,14px)] gap-1 pr-1 text-[10px] leading-[14px] text-ink-400">
+          {WEEKDAY.map((d, i) => (
+            <span key={d} className="h-3.5">
+              {i % 2 === 1 ? d : ''}
+            </span>
+          ))}
+        </div>
+
+        <div className="grid grid-flow-col grid-rows-[repeat(7,14px)] gap-1 overflow-x-auto">
+          {days.map((day, i) => {
+            const level = chaosLevel(day)
+            const neon = level === 4
+            const hasData =
+              day.focusSeconds + day.distractSeconds + day.neutralSeconds + day.tabOpens > 0
+            return (
               <div
-                className="ln group relative h-14 w-14 rounded-lg border transition-transform hover:scale-105"
+                key={day.date}
+                className="ln group relative h-3.5 w-3.5 rounded-sm border"
                 style={{
-                  backgroundColor: LEVEL_COLORS[level],
-                  boxShadow: neon
-                    ? '0 0 0 1px rgba(198,255,0,0.6), 0 0 22px -2px rgba(198,255,0,0.55)'
-                    : undefined,
+                  backgroundColor: hasData ? LEVEL_COLORS[level] : 'transparent',
+                  gridRowStart: i === 0 ? firstDow + 1 : undefined,
+                  boxShadow: neon ? '0 0 8px -1px rgba(198,255,0,0.7)' : undefined,
                 }}
               >
-                <Tooltip day={day} level={level} />
+                <Tooltip day={day} level={level} hasData={hasData} />
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-ink-400">
-                {WEEKDAY[date.getDay()]}
-              </span>
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
     </section>
   )
 }
 
-function Tooltip({ day, level }) {
+function Tooltip({ day, level, hasData }) {
   return (
     <div className="ln-2 pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border bg-ink-800 px-3 py-2 text-xs shadow-xl group-hover:block">
       <div className="font-semibold text-ink-50">{day.date}</div>
-      <div className="text-ink-300">{LEVEL_LABELS[level]}</div>
-      <div className="mt-1 text-ink-400">
-        {day.distractingVisits} blocked · {day.explosions} explosions
-      </div>
+      <div className="text-ink-300">{hasData ? LEVEL_LABELS[level] : 'No activity'}</div>
+      {hasData && (
+        <div className="mt-1 text-ink-400">
+          {day.distractingVisits} blocked · {day.explosions} over-limit
+        </div>
+      )}
     </div>
   )
 }
@@ -70,8 +82,7 @@ function Legend() {
           className="ln h-3.5 w-3.5 rounded-sm border"
           style={{
             backgroundColor: c,
-            boxShadow:
-              i === 4 ? '0 0 8px -1px rgba(198,255,0,0.7)' : undefined,
+            boxShadow: i === 4 ? '0 0 8px -1px rgba(198,255,0,0.7)' : undefined,
           }}
         />
       ))}

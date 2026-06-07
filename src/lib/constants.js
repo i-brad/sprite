@@ -7,7 +7,7 @@ export const KEYS = {
   UNLOCKS: 'sprite:unlocks', // map of domain -> unix-ms expiry
 }
 
-export const HISTORY_DAYS = 7
+export const HISTORY_DAYS = 30 // rolling window of days kept + shown on the grid
 
 export const DEFAULT_SETTINGS = {
   // Domains the user considers focus work. Time here counts as focus.
@@ -30,15 +30,14 @@ export const DEFAULT_SETTINGS = {
     'facebook.com',
     'netflix.com',
   ],
-  tabLimit: 15, // > this triggers a Tab Explosion. 0 = unlimited (never explodes)
+  tabLimit: 15, // > this counts a tab-overload "explosion" in your stats. 0 = unlimited
   unlockMinutes: 5, // temporary unlock window after solving a puzzle
-  puzzleSeconds: 15, // countdown to solve the micro-task
-  explosionFuseSeconds: 30, // ignore the warning sprite this long -> screen detonates
+  puzzleSeconds: 30, // countdown to solve the micro-task
   theme: 'system', // dashboard theme: 'system' | 'light' | 'dark'
-  sound: true, // play the explosion sound on detonation
+  sound: true, // play the explosion sound when a challenge is failed
 }
 
-// tabLimit === 0 (or falsy) means "unlimited" — the Tab Explosion never fires.
+// tabLimit === 0 (or falsy) means "unlimited" — tab overload is never counted.
 export const isUnlimited = (limit) => !limit || limit <= 0
 
 // A fresh per-day record.

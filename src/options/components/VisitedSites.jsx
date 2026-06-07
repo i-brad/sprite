@@ -41,7 +41,7 @@ export default function VisitedSites({ days, settings }) {
         <div>
           <div className="kicker">Visited sites</div>
           <h2 className="mt-1 text-lg font-semibold text-ink-50">
-            {rows.length} domain{rows.length === 1 ? '' : 's'} this week
+            {rows.length} domain{rows.length === 1 ? '' : 's'} · last {days.length} days
           </h2>
         </div>
       </div>

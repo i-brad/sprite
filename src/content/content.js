@@ -18,12 +18,7 @@ const CURRENT_DOMAIN = normalizeDomain(location.hostname)
 
 let shadow = null
 let timerHandle = null // puzzle countdown
-
-// Tab-explosion episode state (per tab / page).
-let settings = null // cached settings for sync access in render
-let fuseTimer = null // doom countdown handle
-let dismissed = false // user dismissed the sprite this episode
-let detonated = false // full-screen explosion already played this episode
+let settings = null // cached settings for sync access in the render path
 
 /* ----------------------------- shadow host -------------------------- */
 
@@ -237,93 +232,9 @@ function cleanupTimer() {
   }
 }
 
-/* -------------------------- explosion banner ------------------------ */
+/* ----------------------- full-screen detonation --------------------- */
 
-function renderExplosion(state) {
-  const existing = shadow && shadow.querySelector('.sprite-blast')
-
-  // Defused (or never exploded) — the episode is over. Slide the sprite off,
-  // disarm the fuse, and reset episode flags so a future explosion starts fresh.
-  if (!state || !state.exploded) {
-    cancelFuse()
-    dismissed = false
-    detonated = false
-    if (existing && !existing.classList.contains('sprite-blast--leaving')) {
-      existing.classList.add('sprite-blast--leaving')
-      existing.addEventListener('animationend', () => existing.remove(), { once: true })
-    }
-    return
-  }
-
-  // Over the limit. If the user already dismissed or the screen already
-  // detonated this episode, stay quiet until they defuse.
-  if (dismissed || detonated) return
-
-  const over = state.count - state.limit
-  const action = `Close ${over} tab${over === 1 ? '' : 's'} to defuse`
-
-  if (existing) {
-    existing.querySelector('.sprite-blast__count').textContent = state.count
-    existing.querySelector('.sprite-blast__action').textContent = action
-    return
-  }
-
-  // The Sprite mascot peeks into the bottom-right corner, panicking.
-  const el = document.createElement('div')
-  el.className = 'sprite-blast'
-  el.innerHTML = `
-    <div class="sprite-blast__bubble">
-      <button class="sprite-blast__dismiss" type="button" aria-label="Dismiss">×</button>
-      <span class="sprite-blast__title">TAB EXPLOSION</span>
-      <span class="sprite-blast__action">${action}</span>
-    </div>
-    <div class="sprite-blast__token">
-      <span class="sprite-blast__ring"></span>
-      <span class="sprite-blast__ring sprite-blast__ring--2"></span>
-      <span class="sprite-blast__avatar">${SPRITE_SVG}</span>
-      <span class="sprite-blast__count">${state.count}</span>
-    </div>`
-  el.querySelector('.sprite-blast__dismiss').addEventListener('click', dismissSprite)
-  mount(el)
-
-  armFuse() // start the doom countdown
-}
-
-// Manual dismiss — calm the sprite and defuse the screen detonation.
-function dismissSprite() {
-  cancelFuse()
-  dismissed = true
-  const el = shadow && shadow.querySelector('.sprite-blast')
-  if (el && !el.classList.contains('sprite-blast--leaving')) {
-    el.classList.add('sprite-blast--leaving')
-    el.addEventListener('animationend', () => el.remove(), { once: true })
-  }
-}
-
-function armFuse() {
-  if (fuseTimer || detonated) return
-  const secs = settings?.explosionFuseSeconds ?? 30
-  fuseTimer = setTimeout(detonate, secs * 1000)
-}
-
-function cancelFuse() {
-  if (fuseTimer) {
-    clearTimeout(fuseTimer)
-    fuseTimer = null
-  }
-}
-
-// Ignored too long: blow up the whole screen.
-function detonate() {
-  fuseTimer = null
-  detonated = true
-  // The warning sprite gets consumed by the blast.
-  const sprite = shadow && shadow.querySelector('.sprite-blast')
-  if (sprite) sprite.remove()
-  playDoom()
-}
-
-function playDoom(subtitle = 'Too many tabs. You let it blow.') {
+function playDoom(subtitle = 'Challenge failed. Tab destroyed.') {
   if (shadow && shadow.querySelector('.doom')) return
   const doom = document.createElement('div')
   doom.className = 'doom'
@@ -433,14 +344,6 @@ async function init() {
     const unlocked = await isUnlocked(CURRENT_DOMAIN)
     if (!unlocked) showBlocker()
   }
-
-  // Initial explosion state + live updates.
-  const state = await chrome.runtime.sendMessage({ type: 'SPRITE_GET_STATE' }).catch(() => null)
-  if (state?.explosion) renderExplosion(state.explosion)
-
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg?.type === 'SPRITE_EXPLOSION') renderExplosion(msg.payload)
-  })
 
   // React to setting/unlock changes.
   chrome.storage.onChanged.addListener(async (changes, area) => {
@@ -570,85 +473,7 @@ const STYLES = `
 }
 @keyframes react-pop { from { transform: scale(0.4); } to { transform: scale(1); } }
 
-/* --- Tab-Explosion mascot: peeks into the bottom-right corner and stays --- */
-.sprite-blast {
-  pointer-events: auto;
-  position: fixed; right: 22px; bottom: 22px;
-  display: flex; align-items: flex-end; gap: 12px;
-  transform-origin: bottom right;
-  animation: sprite-pop-in 0.5s cubic-bezier(0.18, 1.4, 0.4, 1) both;
-}
-.sprite-blast--leaving {
-  animation: sprite-leave 0.4s ease-in forwards;
-}
-
-.sprite-blast__bubble {
-  position: relative;
-  display: flex; flex-direction: column; align-items: flex-end;
-  padding: 8px 12px; margin-bottom: 6px;
-  border-radius: 12px;
-  background: linear-gradient(160deg, rgba(22,22,24,0.96), rgba(10,10,11,0.98));
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 16px 40px -18px rgba(0,0,0,0.9);
-  white-space: nowrap;
-}
-.sprite-blast__dismiss {
-  position: absolute; top: -8px; left: -8px;
-  width: 20px; height: 20px; line-height: 18px;
-  border-radius: 50%; border: 1px solid rgba(255,255,255,0.12);
-  background: #161618; color: #a1a1aa;
-  font-size: 14px; cursor: pointer; padding: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-.sprite-blast__dismiss:hover { color: #fff; border-color: #c6ff00; }
-.sprite-blast__title { font-weight: 800; letter-spacing: 0.16em; color: #c6ff00; font-size: 12px; }
-.sprite-blast__action { font-size: 11px; color: #a1a1aa; margin-top: 2px; }
-
-.sprite-blast__token {
-  position: relative;
-  width: 64px; height: 64px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #1c1c20, #050505);
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 14px 36px -14px rgba(0,0,0,0.9);
-  animation: sprite-bob 2.4s ease-in-out infinite;
-}
-.sprite-blast__avatar {
-  display: flex;
-  animation: sprite-shake 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 8px rgba(198,255,0,0.35));
-}
-.sprite-spark { animation: sprite-spark 0.6s steps(2) infinite; transform-origin: center; }
-.sprite-blast__count {
-  position: absolute; top: -6px; right: -6px;
-  min-width: 22px; padding: 1px 5px;
-  border-radius: 999px;
-  background: #c6ff00; color: #050505;
-  font-size: 12px; font-weight: 800; text-align: center;
-  box-shadow: 0 0 14px -2px rgba(198,255,0,0.7);
-}
-/* Expanding neon shockwaves pulsing around the panicking sprite. */
-.sprite-blast__ring {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: 2px solid rgba(198,255,0,0.7);
-  opacity: 0;
-  animation: sprite-shock 3s ease-out infinite;
-}
-.sprite-blast__ring--2 { animation-delay: 0.5s; }
-
-@keyframes sprite-pop-in {
-  from { transform: translateY(135%) scale(0.6); opacity: 0; }
-  to   { transform: translateY(0) scale(1); opacity: 1; }
-}
-@keyframes sprite-leave {
-  from { transform: translateY(0) scale(1); opacity: 1; }
-  to   { transform: translateY(135%) scale(0.6); opacity: 0; }
-}
-@keyframes sprite-bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-5px); }
-}
+/* The blocker avatar trembles + sparks (mascot still used on the focus lock). */
 @keyframes sprite-shake {
   0%, 70%   { transform: rotate(0deg); }
   74%  { transform: rotate(-10deg); }
@@ -658,14 +483,8 @@ const STYLES = `
   90%, 100% { transform: rotate(0deg); }
 }
 @keyframes sprite-spark { 0% { opacity: 1; } 100% { opacity: 0.3; } }
-@keyframes sprite-shock {
-  0%   { transform: scale(0.6); opacity: 0; }
-  12%  { opacity: 0.75; }
-  60%  { transform: scale(2); opacity: 0; }
-  100% { transform: scale(2); opacity: 0; }
-}
 
-/* --- Full-screen detonation when the warning is ignored too long --------- */
+/* --- Full-screen detonation played when a focus challenge is failed ------ */
 .doom {
   pointer-events: auto;
   position: fixed; inset: 0;
@@ -755,9 +574,7 @@ const STYLES = `
 @keyframes doom-out { to { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .sprite-blast { animation: none; }
-  .sprite-blast__token, .sprite-blast__avatar, .sprite-blast__ring, .sprite-spark { animation: none; }
-  .sprite-blast__ring { opacity: 0; }
+  .blocker__avatar, .sprite-spark { animation: none; }
   .doom__core, .doom__bit, .doom__fireball { animation: none; }
   .doom__boom { animation: doom-boom 0.6s cubic-bezier(0.18,1.6,0.4,1) forwards; }
 }

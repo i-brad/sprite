@@ -133,7 +133,7 @@ function TimeCard({ a, totalDays }) {
         {dur(total)}
       </div>
       <div className="mt-1 text-xs text-ink-400">
-        this week · {a.perfectDays}/{totalDays} perfect days
+        last {totalDays} days · {a.perfectDays}/{totalDays} perfect
       </div>
 
       <StackedBar

@@ -2,26 +2,38 @@ import React, { useState } from 'react'
 
 // Editable lists of productive / distracting domains plus the core knobs.
 // Writes straight back through saveSettings (the background reads these live).
-export default function SettingsPanel({ settings, onSave, onReset }) {
+export default function SettingsPanel({ settings, onSave, onReset, onClose }) {
   const reset = () => {
     if (window.confirm('Reset all domains and limits to the Sprite defaults?')) {
       onReset?.()
     }
   }
   return (
-    <section className="panel p-6">
+    <section className="panel max-h-[88vh] overflow-y-auto p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="kicker">Configuration</div>
           <h2 className="mt-1 text-lg font-semibold text-ink-50">Domains &amp; limits</h2>
         </div>
-        <button
-          type="button"
-          onClick={reset}
-          className="ln-2 shrink-0 rounded-lg border px-3 py-1.5 text-xs text-ink-300 transition-colors hover:border-neon hover:text-neon"
-        >
-          Reset to defaults
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={reset}
+            className="ln-2 rounded-lg border px-3 py-1.5 text-xs text-ink-300 transition-colors hover:border-neon hover:text-neon"
+          >
+            Reset to defaults
+          </button>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close settings"
+              className="ln-2 flex h-8 w-8 items-center justify-center rounded-lg border text-ink-300 transition-colors hover:border-neon hover:text-neon"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -34,14 +46,14 @@ export default function SettingsPanel({ settings, onSave, onReset }) {
         />
         <DomainList
           title="Distracting"
-          hint="Blocked behind a 15s challenge."
+          hint="Blocked behind a 30s challenge."
           accent="#c6ff00"
           domains={settings.distractingDomains}
           onChange={(distractingDomains) => onSave({ distractingDomains })}
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
         <TabLimitField
           value={settings.tabLimit}
           onChange={(tabLimit) => onSave({ tabLimit })}
@@ -57,12 +69,6 @@ export default function SettingsPanel({ settings, onSave, onReset }) {
           value={settings.puzzleSeconds}
           min={3}
           onChange={(puzzleSeconds) => onSave({ puzzleSeconds })}
-        />
-        <NumberField
-          label="Explosion fuse (s)"
-          value={settings.explosionFuseSeconds}
-          min={5}
-          onChange={(explosionFuseSeconds) => onSave({ explosionFuseSeconds })}
         />
       </div>
 
